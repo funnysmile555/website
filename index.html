@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <title>Team Eight</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h2 {color:blueviolet}
+    header,
+    main,
+    footer {
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid#ddd;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Hello!</h1>
+  </header>
+  <main>
+    <h2>Welcome to Team Eight</h2>
+    <p>Here you can use Team Eight's software program for your event .</p>
+</main>
+  <footer>
+    <p>&copy; 2023 Team Eight. All rights reserved.</p>
+  </footer>
+
+</body>
+<script>class Seat {
+  constructor() {
+      this.occupied = false;
+  }
+
+  isOccupied() {
+      return this.occupied;
+  }
+
+  occupy() {
+      this.occupied = true;
+  }
+}
+
+class Table {
+  constructor(tableNumber, major) {
+      this.tableNumber = tableNumber;
+      this.seats = Array.from({ length: 8 }, () => new Seat()); // Updated to 8 seats per table
+      this.major = major;
+  }
+
+  getTableNumber() {
+      return this.tableNumber;
+  }
+
+  getSeats() {
+      return this.seats;
+  }
+
+  getMajor() {
+      return this.major;
+  }
+
+  hasEmptySeat() {
+      return this.seats.some(seat => !seat.isOccupied());
+  }
+
+  sit() {
+      for (const seat of this.seats) {
+          if (!seat.isOccupied()) {
+              seat.occupy();
+              return true;
+          }
+      }
+      return false;
+  }
+}
+
+class TVDisplay {
+  constructor(tables) {
+      this.tables = tables;
+  }
+
+  updateDisplay() {
+      for (const table of this.tables) {
+          const occupiedSeats = table.getSeats().filter(seat => seat.isOccupied()).length;
+          console.log(`Table ${table.getTableNumber()} (${table.getMajor()}): ${occupiedSeats} student(s) seated`);
+      }
+  }
+}
+
+const tables = [];
+const majors = [
+  "Aerospace", "Architectural", "Biomedical", "Chemical",
+  "ComputerScience", "Mechanical", "Petroleum", "Electrical",
+  "Civil", "Environmental"
+];
+
+const presetSeats = {
+  "Student Aerospace": 4,
+  "Faculty Aerospace": 4,
+  "Student Electrical": 7,
+  "Faculty Electrical": 4,
+  "Student Mechanical": 7,
+  "Faculty Mechanical": 4,
+  "Student Civil": 6,
+  "Faculty Civil": 6,
+  "Student Architectural": 3,
+  "Faculty Architectural": 1,
+  "Student Environmental": 7,
+  "Faculty Environmental": 2,
+  "Student Biomedical": 6,
+  "Faculty Biomedical": 2,
+  "Student Chemical": 5,
+  "Faculty Chemical": 3,
+  "Student ComputerScience": 4,
+  "Faculty ComputerScience": 4,
+  "Student Petroleum": 4,
+  "Faculty Petroleum": 2
+};
+
+let tableNumber = 1;
+for (const major of majors) {
+  for (let i = 0; i < 3; i++) { // Assuming each major has 3 tables
+      tables.push(new Table(tableNumber++, major));
+  }
+}
+
+// Assign preset seats
+for (const category in presetSeats) {
+  let seatsToAssign = presetSeats[category];
+  const [type, major] = category.split(" ");
+
+  for (const table of tables) {
+      if (table.getMajor().toLowerCase() === major.toLowerCase()) {
+          while (seatsToAssign > 0 && table.hasEmptySeat()) {
+              table.sit();
+              seatsToAssign--;
+          }
+      }
+  }
+}
+
+const tvDisplay = new TVDisplay(tables);
+
+while (true) {
+  const invitedResponse = prompt("Do you have a reservation for the event? (yes/no/currentseat/quit):");
+
+  if (invitedResponse.toLowerCase() === "quit") {
+      break; // Breaks the loop and exits the program
+  }
+
+  if (invitedResponse.toLowerCase() === "yes") {
+      const type = prompt("Are you a student or faculty? (student/faculty):").toLowerCase();
+
+      if (type === "faculty" || type === "student") {
+          const firstName = prompt("Enter your first name:");
+          const lastName = prompt("Enter your last name:");
+
+          console.log(`Welcome, ${type === "faculty" ? "Professor " : ""}${lastName}! Staff will show you to your seat.`);
+      } else {
+          console.log("Please enter a valid type: student or faculty.");
+          continue;
+      }
+  } else if (invitedResponse.toLowerCase() === "currentseat") {
+      tvDisplay.updateDisplay();
+  } else {
+      const major = prompt("Enter your major: (Aerospace, Architectural, Biomedical, Chemical, Computer Science, Mechanical, Petroleum, Electrical, Civil, Environmental) or 'quit' to exit").toLowerCase();
+
+      if (major === "quit") {
+          break;
+      }
+
+      const majorSpecificTables = tables.filter(table => table.getMajor().toLowerCase() === major);
+
+      const selectedTable = majorSpecificTables.find(table => table.hasEmptySeat());
+
+      if (selectedTable) {
+          selectedTable.sit();
+          console.log(`You've been assigned to Table ${selectedTable.getTableNumber()} (${selectedTable.getMajor()}).`);
+      } else {
+          console.log("No available seat at the table for the specified major.");
+      }
+  }
+}
+</script>
+</html>
+
